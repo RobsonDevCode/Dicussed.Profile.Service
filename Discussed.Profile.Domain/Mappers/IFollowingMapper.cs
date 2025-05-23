@@ -20,4 +20,7 @@ public interface IFollowingMapper
     RemoveFollowRequest Map(DeclineRequestModel request);
     
     RemoveFollowRequest Map(FollowRequestModel request);
+    IEnumerable<FollowerModel> Map(IEnumerable<Follower> followers);
+    
+    FollowerType[] MapToResponseType(IEnumerable<FollowerModel> followers);
 }

@@ -4,5 +4,5 @@ namespace Discussed.Profile.Domain.Services.Profiles;
 
 public interface IProfileRetrievalService
 {
-    Task<ProfileModel> GetAsync(Guid userId, CancellationToken cancellationToken);
+    Task<ProfileModel> GetByIdAsync(Guid userId, CancellationToken cancellationToken);
 }

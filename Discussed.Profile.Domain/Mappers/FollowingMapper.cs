@@ -38,6 +38,17 @@ public partial class Mapper
         }).ToArray();
     }
 
+    public FollowerType[] MapToResponseType(IEnumerable<FollowerModel> followers)
+    {
+        return followers.Select(x => new FollowerType
+        {
+            UserGuid = x.Id,
+            Username = x.Username,
+            FollowerCount = x.FollowingCount,
+            FollowingCount = x.FollowingCount
+        }).ToArray();
+    }
+
     public FollowRequestModel MapToDomain(FollowRequest request)
     {
         return new FollowRequestModel
@@ -84,5 +95,16 @@ public partial class Mapper
             FollowerUserId = request.UserToFollow,
             Username = username
         };
+    }
+
+    public IEnumerable<FollowerModel> Map(IEnumerable<Follower> followers)
+    {
+        return followers.Select(x => new FollowerModel
+        {
+            Id = x.Id,
+            Username = x.Username,
+            FollowingCount = x.FollowingCount,
+            FollowerCount = x.FollowerCount
+        });
     }
 }

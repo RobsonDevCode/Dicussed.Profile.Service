@@ -19,7 +19,7 @@ public sealed class ProfileRetrievalService : IProfileRetrievalService
         _logger = logger;
     }
 
-    public async Task<ProfileModel> GetAsync(Guid userId, CancellationToken cancellationToken)
+    public async Task<ProfileModel> GetByIdAsync(Guid userId, CancellationToken cancellationToken)
     {
         var profile = await _profileReader.GetByIdAsync(userId, cancellationToken);
         if (profile == null)

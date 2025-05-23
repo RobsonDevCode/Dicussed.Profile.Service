@@ -44,7 +44,7 @@ internal static class ProfileEndpoint
             [User] = userId
         });
 
-        var result = await profileRetrievalService.GetAsync(userId, cancellationToken);
+        var result = await profileRetrievalService.GetByIdAsync(userId, cancellationToken);
         var mappedResult = mapper.MapToResponse(result);
         logger.LogInformation("Get Profile returned successfully!");
 

@@ -13,6 +13,11 @@ public sealed class FollowReader : IFollowReader
     private readonly IMapper _mapper;
     private readonly ILogger<FollowReader> _logger;
 
+    private static readonly HashSet<string> _allowedFollowingFields = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "userGuid", "username", "userFollowing", "id"
+    };
+
     public FollowReader(IMySqlConnectionFactory mySqlConnectionFactory,
         IMapper mapper,
         ILogger<FollowReader> logger)
@@ -22,60 +27,86 @@ public sealed class FollowReader : IFollowReader
         _logger = logger;
     }
 
-    public async Task<(IEnumerable<Following>, int Total)> GetPageAsync(Guid userId, PagedOptions filter,
+    public async Task<(IEnumerable<Following>, int Total)> GetFollowingPageAsync(Guid userId, PagedOptions filter,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            const string sql = """
-                               SELECT * FROM following
-                               WHERE userGuid = @userId LIMIT @pagesize OFFSET @skip;
-                               """;
+        const string sql = """
+                           SELECT * FROM following
+                           WHERE userGuid = @userId LIMIT @pagesize OFFSET @skip;
+                           """;
 
-            await using var connection = _mySqlConnectionFactory.CreateUserInfoConnection();
-            await connection.OpenAsync(cancellationToken);
+        await using var connection = _mySqlConnectionFactory.CreateUserInfoConnection();
+        await connection.OpenAsync(cancellationToken);
 
-            await using var command = new MySqlCommand(sql, connection);
+        await using var command = new MySqlCommand(sql, connection);
 
-            command.Parameters.Add("@userId", MySqlDbType.Guid).Value = userId;
-            command.Parameters.Add("@skip", MySqlDbType.Int32).Value = filter.Skip;
-            command.Parameters.Add("@pageSize", MySqlDbType.Int32).Value = filter.Take;
+        command.Parameters.Add("@userId", MySqlDbType.Guid).Value = userId;
+        command.Parameters.Add("@skip", MySqlDbType.Int32).Value = filter.Skip;
+        command.Parameters.Add("@pageSize", MySqlDbType.Int32).Value = filter.Take;
 
-            var reader = await command.ExecuteReaderAsync(cancellationToken);
+        var reader = await command.ExecuteReaderAsync(cancellationToken);
 
-            var total = await GetTotalAsync(userId, cancellationToken);
-            
-            return (await _mapper.MapFollowingAsync(reader, cancellationToken), total);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError("error getting page from database: {error}, {errorDetails}", ex, ex.Message);
-            throw;
-        }
+        var total = await GetTotalFollowingAsync(userId, cancellationToken);
+
+        return (await _mapper.MapFollowingAsync(reader, cancellationToken), total);
     }
 
-    public async Task<int> GetTotalAsync(Guid userId, CancellationToken cancellationToken)
+    public async Task<IEnumerable<Follower>> GetFollowerPageAsync(Guid userId, IEnumerable<string> fields,
+        PagedOptions filter, CancellationToken cancellationToken)
     {
-        try
-        {
-            const string sql = """
-                                SELECT COUNT(userGuid) FROM following WHERE userGuid = @userId;
-                               """;
+        //you cannot parameterize field names in SQL so we compare against a hashset of allowed columns to prevent sql injection
+        var sqlFields = string.Join(", ", fields.Where(x => _allowedFollowingFields.Contains(x)))
+            .TrimEnd(',');
 
-            await using var connection = _mySqlConnectionFactory.CreateUserInfoConnection();
+        var sql = $"""
+                    SELECT {sqlFields} FROM following
+                    WHERE userFollowing = @userId LIMIT @pagesize OFFSET @skip;
+                  """;
 
-            await connection.OpenAsync(cancellationToken);
-            await using var command = new MySqlCommand(sql, connection);
-            command.Parameters.Add("@userId", MySqlDbType.Guid).Value = userId;
+        await using var connection = _mySqlConnectionFactory.CreateUserInfoConnection();
+        await connection.OpenAsync(cancellationToken);
+        await using var command = new MySqlCommand(sql, connection);
 
-            var response = await command.ExecuteScalarAsync(cancellationToken);
+        _logger.LogInformation("Getting fields {fields} for following page.", sqlFields);
 
-            return Convert.ToInt32(response);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogInformation("error getting total count: {error}, {errorDetails}", ex, ex.Message);
-            throw;
-        }
+        command.Parameters.Add("@userId", MySqlDbType.Guid).Value = userId;
+        command.Parameters.Add("@skip", MySqlDbType.Int32).Value = filter.Skip;
+        command.Parameters.Add("@pageSize", MySqlDbType.Int32).Value = filter.Take;
+
+        var reader = await command.ExecuteReaderAsync(cancellationToken);
+        return await _mapper.MapFollowersAsync(reader, fields, cancellationToken);
+    }
+
+    public async Task<int> GetTotalFollowingAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        const string sql = """
+                            SELECT COUNT(userGuid) FROM following WHERE userGuid = @userId;
+                           """;
+
+        await using var connection = _mySqlConnectionFactory.CreateUserInfoConnection();
+
+        await connection.OpenAsync(cancellationToken);
+        await using var command = new MySqlCommand(sql, connection);
+        command.Parameters.Add("@userId", MySqlDbType.Guid).Value = userId;
+
+        var response = await command.ExecuteScalarAsync(cancellationToken);
+
+        return Convert.ToInt32(response);
+    }
+    public async Task<int> GetTotalFollowersAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        const string sql = """
+                            SELECT COUNT(userGuid) FROM following WHERE userFollowing = @userId;
+                           """;
+
+        await using var connection = _mySqlConnectionFactory.CreateUserInfoConnection();
+
+        await connection.OpenAsync(cancellationToken);
+        await using var command = new MySqlCommand(sql, connection);
+        command.Parameters.Add("@userId", MySqlDbType.Guid).Value = userId;
+
+        var response = await command.ExecuteScalarAsync(cancellationToken);
+
+        return Convert.ToInt32(response);
     }
 }

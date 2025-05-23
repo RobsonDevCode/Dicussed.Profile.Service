@@ -5,6 +5,7 @@ using Discussed.Profile.Api.Extensions.HttpClients;
 using Discussed.Profile.Api.Extensions.Logging;
 using Discussed.Profile.Api.Handlers;
 using Discussed.Profile.Api.Handlers.GraphQL;
+using Discussed.Profile.Api.Middleware;
 using Discussed.Profile.Api.Schemas;
 using Discussed.Profile.Api.Schemas.Mutations;
 using Discussed.Profile.Api.Schemas.Queries;
@@ -33,10 +34,9 @@ builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddGraphQLServer()
     .AddErrorFilter<GraphQLErrorFilter>()
+    .UseField<FieldSelectionMiddleware>()
     .AddQueryType<Query>()
     .AddTypeExtension<ProfileQueries>()
-    .AddMutationType<Mutation>()
-    .AddTypeExtension<ProfileMutations>()
     .AddAuthorization()
     .ModifyPagingOptions(options =>
     {
