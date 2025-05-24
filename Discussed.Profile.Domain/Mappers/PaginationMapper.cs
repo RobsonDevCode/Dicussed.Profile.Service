@@ -1,7 +1,5 @@
 ﻿using Discussed.Profile.Api.Contracts.Contracts;
-using Discussed.Profile.Api.Contracts.Contracts.Api;
 using Discussed.Profile.Domain.Models;
-using Discussed.Profile.Domain.Models.Paging;
 
 namespace Discussed.Profile.Domain.Mappers;
 

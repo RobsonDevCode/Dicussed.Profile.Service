@@ -19,8 +19,7 @@ public static class ResolverExtensions
     {
         return resolverContext.Selection.SyntaxNode.SelectionSet?.Selections
             .OfType<FieldNode>()
-            .SelectMany(f => f.SelectionSet?.Selections.OfType<FieldNode>() ?? [])
-            .Select(f => f.Name.Value)
+            .Select(x => x.Name.Value)
             .ToList();
     }
 }

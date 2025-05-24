@@ -28,4 +28,14 @@ public sealed class ProfileRetrievalService : IProfileRetrievalService
         var mappedProfile = _mapper.Map(profile);
         return mappedProfile;
     }
+
+    public async Task<ProfileModelV2> GetByIdAsync(Guid userId, IEnumerable<string> fields, CancellationToken cancellationToken)
+    {
+        var profile = await _profileReader.GetByIdAsync(userId, fields, cancellationToken);
+        if (profile == null)
+            throw new KeyNotFoundException("Profile not found!");
+
+        var mappedProfile = _mapper.Map(profile);
+        return mappedProfile;
+    }
 }

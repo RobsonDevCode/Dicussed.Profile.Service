@@ -1,6 +1,8 @@
 ﻿using Discussed.Profile.Api.Contracts.Contracts;
+using Discussed.Profile.Api.Contracts.Contracts.GraphQl.Types.Profile;
 using Discussed.Profile.Domain.Extensions;
 using Discussed.Profile.Domain.Models;
+using Discussed.Profile.Persistence.Interfaces.Contracts;
 
 namespace Discussed.Profile.Domain.Mappers;
 
@@ -10,9 +12,11 @@ public partial class Mapper
     {
         return profiles.Select(profile => new ProfileModel
         {
-            UserId = profile.UserId, 
-            FollowerCount = profile.FollowerCount.ToFollowDisplay(), 
-            FollowingCount = profile.FollowingCount.ToFollowDisplay()
+            UserId = profile.UserId,
+            FollowerCount = profile.FollowerCount.ToFollowDisplay(),
+            FollowingCount = profile.FollowingCount.ToFollowDisplay(),
+            Bio = null,
+            Private = false
         }).ToList();
     }
 
@@ -22,7 +26,22 @@ public partial class Mapper
         {
             UserId = profile.UserId,
             FollowerCount = profile.FollowerCount.ToFollowDisplay(),
-            FollowingCount = profile.FollowingCount.ToFollowDisplay()
+            FollowingCount = profile.FollowingCount.ToFollowDisplay(),
+            Bio = null,
+            Private = false
+        };
+    }
+
+    public ProfileModelV2 Map(ProfileV2 profile)
+    {
+        return new ProfileModelV2
+        {
+            Id = profile.UserId,
+            UserName = profile.Username,
+            FollowerCount = !profile.FollowerCount.HasValue ? null : profile.FollowerCount.ToFollowDisplay(),
+            FollowingCount = !profile.FollowingCount.HasValue ? null : profile.FollowingCount.ToFollowDisplay(),
+            Bio = profile.Bio,
+            Private = profile.Private
         };
     }
 
@@ -33,6 +52,18 @@ public partial class Mapper
             UserId = profile.UserId,
             FollowerCount = profile.FollowerCount,
             FollowingCount = profile.FollowingCount
+        };
+    }
+
+    public ProfileType MapToResponseType(ProfileModelV2 profile)
+    {
+        return new ProfileType
+        {
+            UserId = profile.Id,
+            FollowerCount = profile.FollowerCount,
+            FollowingCount = profile.FollowingCount,
+            Bio = profile.Bio,
+            Private = profile.Private,
         };
     }
 }

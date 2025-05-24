@@ -7,4 +7,8 @@ public record ProfileModel
     public required string FollowerCount { get; init; }
     
     public required string FollowingCount { get; init; }
+    
+    public required string Bio { get; init; }
+    
+    public required bool Private { get; init; }
 }

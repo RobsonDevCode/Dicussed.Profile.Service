@@ -1,12 +1,12 @@
 ﻿using Discussed.Profile.Api.Constants;
 using Discussed.Profile.Api.Contracts.Contracts;
 using Discussed.Profile.Api.Contracts.Contracts.GraphQl;
+using Discussed.Profile.Api.Contracts.Contracts.GraphQl.Types.Profile;
 using Discussed.Profile.Api.Extensions.ResolverFields;
 using Discussed.Profile.Domain.Mappers;
 using Discussed.Profile.Domain.Models.Paging.OffsetPagination;
 using Discussed.Profile.Domain.Services;
 using Discussed.Profile.Domain.Services.Profiles;
-using Discussed.Profile.Persistence.Interfaces;
 using HotChocolate.Authorization;
 using HotChocolate.Resolvers;
 using HotChocolate.Types.Pagination;
@@ -88,10 +88,9 @@ public sealed class ProfileQueries
             response.Total);
     }
 
-    [Authorize]
-    public async Task<ProfileResponse> GetByIdAsync(Guid id,
-        [Service] IProfileRetrievalService profileRetrievalService,
+    public async Task<ProfileType> GetByIdAsync(Guid id,
         IResolverContext resolverContext,
+        [Service] IProfileRetrievalService profileRetrievalService,
         [Service] IMapper mapper,
         [Service] ILoggerFactory loggerFactory,
         CancellationToken cancellationToken)
@@ -103,9 +102,15 @@ public sealed class ProfileQueries
             [Operation] = "Get Profile By Id Query"
         });
 
-        var profile = await profileRetrievalService.GetByIdAsync(id, cancellationToken);
+        var fields = resolverContext.GetSelectedFields();
+        if (fields is null || fields.Count is 0)
+        {
+            throw new BadHttpRequestException("No fields selected");
+        }
+
+        var profile = await profileRetrievalService.GetByIdAsync(id, fields, cancellationToken);
         logger.LogInformation("Successfully retrieved Profile");
 
-        return mapper.MapToResponse(profile);
+        return mapper.MapToResponseType(profile);
     }
 }
