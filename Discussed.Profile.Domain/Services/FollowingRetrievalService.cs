@@ -4,7 +4,6 @@ using Discussed.Profile.Domain.Models.Paging;
 using Discussed.Profile.Domain.Models.Paging.OffsetPagination;
 using Discussed.Profile.Persistence.Interfaces.Contracts;
 using Discussed.Profile.Persistence.Interfaces.Reader;
-using HotChocolate.Resolvers;
 
 namespace Discussed.Profile.Domain.Services;
 

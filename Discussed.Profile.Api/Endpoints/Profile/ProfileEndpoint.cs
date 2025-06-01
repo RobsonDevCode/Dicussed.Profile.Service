@@ -40,13 +40,13 @@ internal static class ProfileEndpoint
         var logger = loggerFactory.CreateLogger(LoggingConstants.ProfileEndpoint);
         using var scope = logger.BeginScope(new Dictionary<string, object>
         {
-            [Operation] = "Get Profile By Id",
+            [Operation] = "Get CreateProfileInput By Id",
             [User] = userId
         });
 
         var result = await profileRetrievalService.GetByIdAsync(userId, cancellationToken);
         var mappedResult = mapper.MapToResponse(result);
-        logger.LogInformation("Get Profile returned successfully!");
+        logger.LogInformation("Get CreateProfileInput returned successfully!");
 
         return TypedResults.Ok(mappedResult);
     }

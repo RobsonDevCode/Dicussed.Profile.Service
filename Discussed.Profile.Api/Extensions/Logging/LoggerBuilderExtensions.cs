@@ -12,7 +12,7 @@ public static class LoggerBuilderExtensions
         var options = configuration.GetSection("SeqSettings").Get<SeqSettings>()
             ?? throw new InvalidOperationException("Missing SeqTelemertry configuration.");
         
-        services.AddOpenTelemetry().ConfigureResource(r => r.AddService("Discussed.Profile.Api"))
+        services.AddOpenTelemetry().ConfigureResource(r => r.AddService("Discussed.CreateProfileInput.Api"))
             .WithTracing(x =>
             {
                 x.AddHttpClientInstrumentation()

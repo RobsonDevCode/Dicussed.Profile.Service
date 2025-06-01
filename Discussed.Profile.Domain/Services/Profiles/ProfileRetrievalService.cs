@@ -23,7 +23,7 @@ public sealed class ProfileRetrievalService : IProfileRetrievalService
     {
         var profile = await _profileReader.GetByIdAsync(userId, cancellationToken);
         if (profile == null)
-            throw new KeyNotFoundException("Profile not found!");
+            throw new KeyNotFoundException("CreateProfileInput not found!");
 
         var mappedProfile = _mapper.Map(profile);
         return mappedProfile;
@@ -33,7 +33,7 @@ public sealed class ProfileRetrievalService : IProfileRetrievalService
     {
         var profile = await _profileReader.GetByIdAsync(userId, fields, cancellationToken);
         if (profile == null)
-            throw new KeyNotFoundException("Profile not found!");
+            throw new KeyNotFoundException("CreateProfileInput not found!");
 
         var mappedProfile = _mapper.Map(profile);
         return mappedProfile;

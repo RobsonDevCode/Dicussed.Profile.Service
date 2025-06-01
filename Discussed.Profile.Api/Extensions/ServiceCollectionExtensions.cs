@@ -10,6 +10,8 @@ using Discussed.Profile.Persistence.Interfaces.Writer;
 using Discussed.Profile.Persistence.MySql.Factories;
 using Discussed.Profile.Persistence.MySql.Reader;
 using Discussed.Profile.Persistence.MySql.Writer;
+using Discussed.Profile.Persistence.Neo4J.Factories;
+using Discussed.Profile.Persistence.Neo4J.Reader;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -51,7 +53,7 @@ public static class ServiceCollectionExtensions
         {
             s.SwaggerDoc(version, new()
             {
-                Title = "Discussed Profile API",
+                Title = "Discussed CreateProfileInput API",
                 Version = version
             });
             var securityScheme = new OpenApiSecurityScheme
@@ -103,16 +105,39 @@ public static class ServiceCollectionExtensions
 
     public static void AddDiscussedDependencies(this IServiceCollection services)
     {
-        services.AddScoped<IMySqlConnectionFactory, MySqlConnectionFactory>();
+        services.AddSingleton<IMySqlConnectionFactory, MySqlConnectionFactory>();
+        services.AddSingleton<INeo4JConnectionFactory, Neo4JConnectionFactory>();
+        
         services.AddScoped<IFollowingRetrievalService, FollowingRetrievalService>();
         services.AddScoped<IFollowingRemovalService, FollowingRemovalService>();
         services.AddScoped<IProfileRetrievalService, ProfileRetrievalService>();
+        services.AddScoped<IProfileUpsertService, ProfileUpsertService>();
         services.AddScoped<IFollowingUpsertService, FollowingUpsertService>();
         services.AddScoped<IFollowReader, FollowReader>();
-        services.AddScoped<IProfileReader, ProfileReader>();
         services.AddScoped<IFollowWriter, FollowerWriter>();
-        services.AddScoped<IProfileValidationReader, ProfileValidationReader>();
         services.AddSingleton<Persistence.Interfaces.Mapper.IMapper, Persistence.Interfaces.Mapper.Mapper>();
         services.AddSingleton<Domain.Mappers.IMapper, Domain.Mappers.Mapper>();
+    }
+
+    public static void AddPersistence(this IServiceCollection services, IConfiguration configuration)
+    {
+        var profileVersion = configuration.GetSection("Versioning:ProfileVersion").Get<int>();
+        switch (profileVersion)
+        {
+            case 1:
+                services.AddScoped<IProfileWriter, ProfileWriter>();
+                services.AddScoped<IProfileReader, ProfileReader>();     
+                services.AddScoped<IProfileValidationReader, ProfileValidationReader>();
+                break;
+            case 2:
+                services.AddScoped<IProfileWriter, ProfileWriterV2>();
+                services.AddScoped<IProfileReader, ProfileReaderV2>();
+                break;
+            
+            default:
+                services.AddScoped<IProfileWriter, ProfileWriter>();
+                services.AddScoped<IProfileReader, ProfileReader>();
+                break;
+        }
     }
 }

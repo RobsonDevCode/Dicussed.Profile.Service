@@ -5,9 +5,6 @@ using Discussed.Profile.Api.Extensions.HttpClients;
 using Discussed.Profile.Api.Extensions.Logging;
 using Discussed.Profile.Api.Handlers;
 using Discussed.Profile.Api.Handlers.GraphQL;
-using Discussed.Profile.Api.Middleware;
-using Discussed.Profile.Api.Schemas;
-using Discussed.Profile.Api.Schemas.Mutations;
 using Discussed.Profile.Api.Schemas.Queries;
 using Serilog;
 
@@ -25,6 +22,7 @@ builder.Host.UseSerilog((context, configuration) => configuration.ReadFrom.Confi
 builder.Logging.ClearProviders();
 builder.Services.AddSeqTelemertry(builder.Configuration);
 builder.Services.AddDiscussedDependencies();
+builder.Services.AddPersistence(builder.Configuration);
 builder.Services.AddDiscussedAuth(builder.Configuration);
 builder.Services.AddProblemDetails();
 builder.Services.AddDiscussedSwagger();
@@ -34,7 +32,6 @@ builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddGraphQLServer()
     .AddErrorFilter<GraphQLErrorFilter>()
-    .UseField<FieldSelectionMiddleware>()
     .AddQueryType<Query>()
     .AddTypeExtension<ProfileQueries>()
     .AddAuthorization()
@@ -85,6 +82,5 @@ app.UseExceptionHandler();
 // First map your minimal API endpoints
 app.MapEndpoints();
 
-// Option 1: Direct mapping (preferred for minimal APIs)
 app.MapGraphQL();
 app.Run();

@@ -1,4 +1,5 @@
 ﻿using Discussed.Profile.Api.Contracts.Contracts;
+using Discussed.Profile.Api.Contracts.Contracts.GraphQl.MutationsTypes;
 using Discussed.Profile.Api.Contracts.Contracts.GraphQl.Types.Profile;
 using Discussed.Profile.Domain.Extensions;
 using Discussed.Profile.Domain.Models;
@@ -64,6 +65,31 @@ public partial class Mapper
             FollowingCount = profile.FollowingCount,
             Bio = profile.Bio,
             Private = profile.Private,
+        };
+    }
+
+    public ProfileType MapToResponseType(Persistence.Interfaces.Contracts.Profile profile)
+    {
+        return new ProfileType
+        {
+            UserId = profile.UserId,
+            Bio = profile.Bio,
+            Private = profile.Private,
+            FollowerCount = profile.FollowerCount.ToFollowDisplay(),
+            FollowingCount = profile.FollowingCount.ToFollowDisplay(),
+        };
+    }
+
+    public Persistence.Interfaces.Contracts.Profile MapToPersistance(CreateProfileInput request, string userName)
+    {
+        return new Persistence.Interfaces.Contracts.Profile
+        {
+            UserId = request.UserId,
+            Bio = request.Bio,
+            Private = request.Private,
+            Username = userName,
+            FollowerCount = 0,
+            FollowingCount = 0,
         };
     }
 }

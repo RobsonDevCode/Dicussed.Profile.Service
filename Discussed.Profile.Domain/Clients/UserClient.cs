@@ -1,4 +1,5 @@
 ﻿using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Json;
 using Discussed.Profile.Domain.Models;
 using Microsoft.AspNetCore.Http;
@@ -39,6 +40,39 @@ public sealed class UserClient : IUserClient
         {
             throw new KeyNotFoundException("User not found.");
         }
+
+        return user;
+    }
+
+    public async Task<UserModel?> GetAsync(Guid userId, IEnumerable<string> fields,
+        CancellationToken cancellationToken)
+    {
+        var jwt = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+        if (string.IsNullOrWhiteSpace(jwt))
+        {
+            throw new InvalidOperationException("Authorization header is missing.");
+        }
+
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+
+        var fieldsString = string.Join(",", fields).TrimEnd(',');
+        var query = $$"""
+                      {
+                          user(id: {{userId}}) {
+                          {{fieldsString}}
+                          }
+                      }
+                      """;
+
+        var content = new StringContent(query, Encoding.UTF8, "application/json");
+        var response = await _httpClient.PostAsync("graphql", content, cancellationToken);
+        response.EnsureSuccessStatusCode();
+
+        var user = await JsonSerializer.DeserializeAsync<UserModel>(
+            await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
+
+        if (user is null)
+            throw new KeyNotFoundException("User not found.");
 
         return user;
     }

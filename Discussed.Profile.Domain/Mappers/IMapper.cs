@@ -2,6 +2,5 @@
 
 namespace Discussed.Profile.Domain.Mappers;
 
-public interface IMapper : IProfileMapper, IPaginationMapper, IFollowingMapper
-{
-}
+public interface IMapper : IProfileMapper, IPaginationMapper, IFollowingMapper;
+

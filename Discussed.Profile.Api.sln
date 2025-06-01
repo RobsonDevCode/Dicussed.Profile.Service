@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Discussed.Profile.Persisten
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Discussed.Profile.Persistence.Interfaces", "Discussed.Profile.Persistence.Interfaces\Discussed.Profile.Persistence.Interfaces.csproj", "{4160D756-DD7D-4B35-B988-2AA254E5A93E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Discussed.Profile.Persistence.Neo4J", "Discussed.Profile.Persistence.Neo4J\Discussed.Profile.Persistence.Neo4J.csproj", "{DEDCA463-D4FC-473D-97DF-FEA5FD8FB46B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{4160D756-DD7D-4B35-B988-2AA254E5A93E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4160D756-DD7D-4B35-B988-2AA254E5A93E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4160D756-DD7D-4B35-B988-2AA254E5A93E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DEDCA463-D4FC-473D-97DF-FEA5FD8FB46B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DEDCA463-D4FC-473D-97DF-FEA5FD8FB46B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DEDCA463-D4FC-473D-97DF-FEA5FD8FB46B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DEDCA463-D4FC-473D-97DF-FEA5FD8FB46B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

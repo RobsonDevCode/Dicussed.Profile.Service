@@ -1,5 +1,4 @@
 ﻿using Discussed.Profile.Api.Constants;
-using Discussed.Profile.Api.Contracts.Contracts;
 using Discussed.Profile.Api.Contracts.Contracts.GraphQl;
 using Discussed.Profile.Api.Contracts.Contracts.GraphQl.Types.Profile;
 using Discussed.Profile.Api.Extensions.ResolverFields;
@@ -31,7 +30,7 @@ public sealed class ProfileQueries
         var logger = loggerFactory.CreateLogger(LoggingConstants.ProfileResolver);
         using var scope = logger.BeginScope(new Dictionary<string, object>
         {
-            [Operation] = "Get Paged Profile Query",
+            [Operation] = "Get Paged CreateProfileInput Query",
             [Filter] = paginationOptions,
             [User] = id
         });
@@ -88,6 +87,7 @@ public sealed class ProfileQueries
             response.Total);
     }
 
+    [Authorize]
     public async Task<ProfileType> GetByIdAsync(Guid id,
         IResolverContext resolverContext,
         [Service] IProfileRetrievalService profileRetrievalService,
@@ -99,7 +99,7 @@ public sealed class ProfileQueries
         using var scope = logger.BeginScope(new Dictionary<string, object>
 
         {
-            [Operation] = "Get Profile By Id Query"
+            [Operation] = "Get CreateProfileInput By Id Query"
         });
 
         var fields = resolverContext.GetSelectedFields();
@@ -109,7 +109,7 @@ public sealed class ProfileQueries
         }
 
         var profile = await profileRetrievalService.GetByIdAsync(id, fields, cancellationToken);
-        logger.LogInformation("Successfully retrieved Profile");
+        logger.LogInformation("Successfully retrieved CreateProfileInput");
 
         return mapper.MapToResponseType(profile);
     }
